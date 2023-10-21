@@ -41,58 +41,148 @@ class EightQueens():
         row, column = position
         self._board[row][column]["id"] = "q"
 
+        def tile_is_empty(row: int, column: int) -> bool:
+            "helper subfunction to avoid replacing a queen's id with a killzone from other queens"
+            return self._board[row][column]["id"] != "q"
+
         # row and column killzone
         for i in range(self.size):
             # rows
             placed_queen = column
             if i != placed_queen:
-                self._board[row][i]["id"] = "k"
                 self._board[row][i]["value"] += 1
-                self._board[row][i]["asset"] = self._killzone_asset
+
+                if tile_is_empty(row, i):
+                    self._board[row][i]["id"] = "k"
+                    self._board[row][i]["asset"] = self._killzone_asset
 
             # columns
             placed_queen = row
             if i != placed_queen:
-                self._board[i][column]["id"] = "k"
                 self._board[i][column]["value"] += 1
-                self._board[i][column]["asset"] = self._killzone_asset
+
+                if tile_is_empty(i, column):
+                    self._board[i][column]["id"] = "k"
+                    self._board[i][column]["asset"] = self._killzone_asset
         
         # quadrant 1 (upper right)
         i=1
         while row-i>=0 and column+i<self.size:
-            self._board[row-i][column+i]["id"] = "k"
             self._board[row-i][column+i]["value"] += 1
-            self._board[row-i][column+i]["asset"] = self._killzone_asset
+
+            if tile_is_empty(row-i, column+i):
+                self._board[row-i][column+i]["id"] = "k"
+                self._board[row-i][column+i]["asset"] = self._killzone_asset
             i += 1
 
         # quadrant 2 (upper left)
         i=1
         while row-i>=0 and column-i>=0:
-            self._board[row-i][column-i]["id"] = "k"
             self._board[row-i][column-i]["value"] += 1
-            self._board[row-i][column-i]["asset"] = self._killzone_asset
+
+            if tile_is_empty(row-i, column-i):
+                self._board[row-i][column-i]["id"] = "k"    
+                self._board[row-i][column-i]["asset"] = self._killzone_asset
             i += 1
 
         # quadrant 3 (bottom right)
         i=1
         while row+i<self.size and column-i>=0:
-            self._board[row+i][column-i]["id"] = "k"
             self._board[row+i][column-i]["value"] += 1
-            self._board[row+i][column-i]["asset"] = self._killzone_asset
+
+            if tile_is_empty(row+i, column-i):
+                self._board[row+i][column-i]["id"] = "k"
+                self._board[row+i][column-i]["asset"] = self._killzone_asset
             i += 1
 
         # quadrant 4 (bottom left)
         i=1
         while row+i<self.size and column+i<self.size:
-            self._board[row+i][column+i]["id"] = "k"
             self._board[row+i][column+i]["value"] += 1
-            self._board[row+i][column+i]["asset"] = self._killzone_asset
+
+            if tile_is_empty(row+i, column+i):
+                self._board[row+i][column+i]["id"] = "k"
+                self._board[row+i][column+i]["asset"] = self._killzone_asset
             i += 1
 
         self._validate_queens()
 
     def remove_queen(self, position: tuple):
         self._validate_position(position)
+        self._queen_positions.pop(self._queen_positions.index(position))
+
+        row, column = position
+        self._board[row][column]["id"] = None
+
+        removed_queen_was_killzone = self._board[row][column]["value"] > 0
+        if removed_queen_was_killzone:
+            self._board[row][column]["id"] = "k"
+
+        def removed_killzone_is_empty(row: int, column: int) -> bool:
+            'helper subfunction to avoid replacing asset of an invalid queen when removing a killzone'
+            return self._board[row][column]["value"] == 0 and self._board[row][column]["asset"] == self._killzone_asset
+
+        # row and column killzone
+        for i in range(self.size):
+            # rows
+            removed_queen = column
+            if i != removed_queen:
+                self._board[row][i]["value"] -= 1
+
+                if removed_killzone_is_empty(row, i):
+                    self._board[row][i]["id"] = None
+                    self._board[row][i]["asset"] = None
+
+            # columns
+            removed_queen = row
+            if i != removed_queen:
+                self._board[i][column]["value"] -= 1
+
+                if removed_killzone_is_empty(i,column):
+                    self._board[i][column]["id"] = None
+                    self._board[i][column]["asset"] = None
+        
+        # quadrant 1 (upper right)
+        i=1
+        while row-i>=0 and column+i<self.size:
+            self._board[row-i][column+i]["value"] -= 1
+
+            if removed_killzone_is_empty(row-i, column+i):
+                self._board[row-i][column+i]["id"] = None
+                self._board[row-i][column+i]["asset"] = None
+            i += 1
+
+        # quadrant 2 (upper left)
+        i=1
+        while row-i>=0 and column-i>=0:
+            self._board[row-i][column-i]["value"] -= 1
+            
+            if removed_killzone_is_empty(row-i, column-i):
+                self._board[row-i][column-i]["id"] = None
+                self._board[row-i][column-i]["asset"] = None
+            i += 1
+
+        # quadrant 3 (bottom right)
+        i=1
+        while row+i<self.size and column-i>=0:
+            self._board[row+i][column-i]["value"] -= 1
+            
+            if removed_killzone_is_empty(row+i, column-i):
+                self._board[row+i][column-i]["id"] = None
+                self._board[row+i][column-i]["asset"] = None
+            i += 1
+
+        # quadrant 4 (bottom left)
+        i=1
+        while row+i<self.size and column+i<self.size:
+            self._board[row+i][column+i]["value"] -= 1
+            
+            if removed_killzone_is_empty(row+i, column+i):
+                self._board[row+i][column+i]["id"] = None
+                self._board[row+i][column+i]["asset"] = None
+            i += 1
+
+        self._validate_queens()
 
     def generate_answers(self):
         pass
@@ -103,7 +193,7 @@ class EightQueens():
     def file_to_board(self, file: Path):
         pass
 
-    def _generate_board():
+    def _generate_board(self):
         'description'
         pass
     
