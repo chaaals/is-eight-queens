@@ -35,7 +35,22 @@ class EightQueens():
         return self._queen_positions
     
     def place_queen(self, position: tuple):
+        """
+        Places a queen and their respective killzones on the board.
+        Killzones can overlap and queens can be placed on killzones
+
+        Args:
+            position (tuple): row and column where the queen should be placed.
+        Raises:
+            ValueError: If the specified position is already occupied by another queen.
+        """
         self._validate_position(position)
+        
+        occupied = self._board[row][column]["id"] == "queen"
+        if occupied:
+            ALREADY_OCCUPIED = f"This tile ({row},{column}) already has a queen. It has {self._board[row][column]['id']} as the id\nDid you mean to use 'remove_queen()' instead?"
+            raise ValueError(ALREADY_OCCUPIED)
+        
         self._queen_positions.append(position)
 
         row, column = position
@@ -108,7 +123,22 @@ class EightQueens():
         self._validate_queens()
 
     def remove_queen(self, position: tuple):
+        """
+        Removes a queen and their respective killzones on the board.
+        Removed killzones that overlapped with other killzones won't remove those other killzones
+
+        Args:
+            position (tuple): row and column of the queen to be removed.
+        Raises:
+            ValueError: If the specified position is not occupied by a queen.
+        """
         self._validate_position(position)
+        
+        occupied = self._board[row][column]["id"] == "queen"
+        if not occupied:
+            EMPTY_TILE = f"This tile ({row},{column}) does not have a queen. It has {self._board[row][column]['id']} as the id\nDid you mean to use 'place_queen()' instead?"
+            raise ValueError(EMPTY_TILE)
+        
         self._queen_positions.pop(self._queen_positions.index(position))
 
         row, column = position
