@@ -39,11 +39,11 @@ class EightQueens():
         self._queen_positions.append(position)
 
         row, column = position
-        self._board[row][column]["id"] = "q"
+        self._board[row][column]["id"] = "queen"
 
         def tile_is_empty(row: int, column: int) -> bool:
             "helper subfunction to avoid replacing a queen's id with a killzone from other queens"
-            return self._board[row][column]["id"] != "q"
+            return self._board[row][column]["id"] != "queen"
 
         # row and column killzone
         for i in range(self.size):
@@ -53,7 +53,7 @@ class EightQueens():
                 self._board[row][i]["value"] += 1
 
                 if tile_is_empty(row, i):
-                    self._board[row][i]["id"] = "k"
+                    self._board[row][i]["id"] = "killzone"
                     self._board[row][i]["asset"] = self._killzone_asset
 
             # columns
@@ -62,7 +62,7 @@ class EightQueens():
                 self._board[i][column]["value"] += 1
 
                 if tile_is_empty(i, column):
-                    self._board[i][column]["id"] = "k"
+                    self._board[i][column]["id"] = "killzone"
                     self._board[i][column]["asset"] = self._killzone_asset
         
         # quadrant 1 (upper right)
@@ -71,7 +71,7 @@ class EightQueens():
             self._board[row-i][column+i]["value"] += 1
 
             if tile_is_empty(row-i, column+i):
-                self._board[row-i][column+i]["id"] = "k"
+                self._board[row-i][column+i]["id"] = "killzone"
                 self._board[row-i][column+i]["asset"] = self._killzone_asset
             i += 1
 
@@ -81,7 +81,7 @@ class EightQueens():
             self._board[row-i][column-i]["value"] += 1
 
             if tile_is_empty(row-i, column-i):
-                self._board[row-i][column-i]["id"] = "k"    
+                self._board[row-i][column-i]["id"] = "killzone"    
                 self._board[row-i][column-i]["asset"] = self._killzone_asset
             i += 1
 
@@ -91,7 +91,7 @@ class EightQueens():
             self._board[row+i][column-i]["value"] += 1
 
             if tile_is_empty(row+i, column-i):
-                self._board[row+i][column-i]["id"] = "k"
+                self._board[row+i][column-i]["id"] = "killzone"
                 self._board[row+i][column-i]["asset"] = self._killzone_asset
             i += 1
 
@@ -101,7 +101,7 @@ class EightQueens():
             self._board[row+i][column+i]["value"] += 1
 
             if tile_is_empty(row+i, column+i):
-                self._board[row+i][column+i]["id"] = "k"
+                self._board[row+i][column+i]["id"] = "killzone"
                 self._board[row+i][column+i]["asset"] = self._killzone_asset
             i += 1
 
@@ -116,7 +116,7 @@ class EightQueens():
 
         removed_queen_was_killzone = self._board[row][column]["value"] > 0
         if removed_queen_was_killzone:
-            self._board[row][column]["id"] = "k"
+            self._board[row][column]["id"] = "killzone"
 
         def removed_killzone_is_empty(row: int, column: int) -> bool:
             'helper subfunction to avoid replacing asset of an invalid queen when removing a killzone'
