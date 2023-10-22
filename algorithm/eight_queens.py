@@ -136,6 +136,7 @@ class EightQueens():
         self._queen_positions.pop(self._queen_positions.index(position))
 
         self._board[row][column]["id"] = None
+        self._board[row][column]["asset"] = None
 
         removed_queen_was_killzone = self._board[row][column]["value"] > 0
         if removed_queen_was_killzone:
