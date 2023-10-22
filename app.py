@@ -4,7 +4,6 @@ from tkinter import *
 from algorithm.eight_queens import EightQueens
 from utils.get_tile_image import get_tile_image
 
-
 class App():
     def __init__(self, root: Tk):
         self.eight_queens = EightQueens()
@@ -21,9 +20,7 @@ class App():
 
         root.protocol("WM_DELETE_WINDOW", root.destroy)
 
-
-    def on_tile_click(self, frame: Frame, row: int, col: int):
-        # TODO: Implement place queen and remove queen logic
+    def on_tile_click(self, row: int, col: int):
         is_killzone_or_empty = self.eight_queens.board[row][col]['id'] is None or self.eight_queens.board[row][col]['id'] == 'killzone'
 
         if is_killzone_or_empty:
@@ -43,6 +40,7 @@ class App():
     def render_board(self, frame: Frame):
         bg = None
         tile_image = PhotoImage(None)
+        
         for row in range(len(self.board)):
             for col in range(len(self.board[row])):
                 if (row % 2 == 0 and col % 2 == 0) or (row % 2 != 0 and col % 2 != 0):
@@ -50,7 +48,7 @@ class App():
                 else:
                     bg = "#EBECD0"
 
-                button = Button(frame, border=0, image=tile_image, width=80, height=80, bg = bg, command=lambda frm=frame, r=row, c=col: self.on_tile_click(frm, r, c))
+                button = Button(frame, border=0, image=tile_image, width=80, height=80, bg = bg, command=lambda r=row, c=col: self.on_tile_click(r, c))
 
                 button.image = tile_image
                 button.grid(row=row, column=col)
