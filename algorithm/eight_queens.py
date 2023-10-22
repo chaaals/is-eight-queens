@@ -7,18 +7,11 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
-        """ temporary _generate_board for testing
-        self._board = [[{
-            "id": None,
-            "value": 0,
-            "asset": None
-        } for _ in range(8)] for _ in range(8)]
-        """
+        self._generate_board()
+
         self._valid_queen_asset = Path("path/to/valid/queen/asset")
         self._invalid_queen_asset = Path("path/to/invalid/queen/asset")
         self._killzone_asset = Path("path/to/killzone/asset")
-
-        self._generate_board()
     
     @property
     def size(self) -> int:
@@ -33,6 +26,10 @@ class EightQueens():
     @property
     def queens(self) -> list[tuple[int,int]]:
         return self._queen_positions
+
+    def reset_board(self):
+        'generates a new board with blank tiles'
+        self._generate_board()
     
     def place_queen(self, position: tuple):
         """
@@ -201,7 +198,12 @@ class EightQueens():
 
     def _generate_board(self):
         'description'
-        pass
+        self._board = [[{
+            "id": None,
+            "value": 0,
+            "asset": None
+            } for _ in range(8)
+        ] for _ in range(8)]
     
     def _validate_position(self, position: tuple[int,int]):
         'interrupt process if not a valid position'
