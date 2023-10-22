@@ -33,7 +33,7 @@ class EightQueens():
     @property
     def queens(self) -> list[tuple[int,int]]:
         return self._queen_positions
-    
+
     def place_queen(self, position: tuple):
         """
         Places a queen and their respective killzones on the board.
@@ -140,6 +140,7 @@ class EightQueens():
         removed_queen_was_killzone = self._board[row][column]["value"] > 0
         if removed_queen_was_killzone:
             self._board[row][column]["id"] = "killzone"
+            self._board[row][column]["asset"] = self._killzone_asset
 
         def remove_killzone(row: int, column: int):
             '''
@@ -193,6 +194,12 @@ class EightQueens():
             i += 1
 
         self._validate_queens()
+    
+    def set_assets(self, valid_queen: str, invalid_queen: str, killzone: str):
+        'set image paths to valid_queen, invalid_queen, and killzone assets'
+        self._valid_queen_asset = Path(valid_queen).resolve()
+        self._invalid_queen_asset = Path(invalid_queen).resolve()
+        self._killzone_asset = Path(killzone).resolve()
 
     def generate_answers(self):
         pass
@@ -222,4 +229,13 @@ class EightQueens():
             raise ValueError(f"Position is out of bounds ({position[0]},{position[1]})")
         
     def _validate_queens(self):
-        pass
+        for position in self.queens:
+            queen = self._board[position[0]][position[1]]
+            is_valid_queen = queen['value'] == 0
+
+            if is_valid_queen:
+                if queen['asset'] in (self._invalid_queen_asset, None):
+                    self._board[position[0]][position[1]]['asset'] = self._valid_queen_asset
+
+            else:
+                self._board[position[0]][position[1]]['asset'] = self._invalid_queen_asset
