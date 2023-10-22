@@ -228,7 +228,9 @@ class EightQueens():
         if out_of_bounds:
             raise ValueError(f"Position is out of bounds ({position[0]},{position[1]})")
         
-    def _validate_queens(self):
+    def _validate_queens(self) -> bool:
+        'validates all placed queens and replaces asset with the appropriate one'
+        all_valid = True
         for position in self.queens:
             queen = self._board[position[0]][position[1]]
             is_valid_queen = queen['value'] == 0
@@ -239,3 +241,6 @@ class EightQueens():
 
             else:
                 self._board[position[0]][position[1]]['asset'] = self._invalid_queen_asset
+                all_valid = False
+        
+        return all_valid
