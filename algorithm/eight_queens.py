@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime
 
 class EightQueens():
     'description'
@@ -199,10 +200,49 @@ class EightQueens():
         self._killzone_asset = Path(killzone).resolve()
 
     def generate_answers(self):
-        pass
+        def generate(row: int = 0) -> bool:
+
+            # base case
+            if row >= self.size:
+                return
+            
+            board_row = self._board[row]
+            is_last_row = row == self.size - 1
+
+            for i in range(self.size):
+                tile = board_row[i]
+
+                if tile['value'] == 0:
+                    print(f"place_queen({row}, {i})")
+                    self.place_queen(row, i)
+                    all_8_queens_valid = self._validate_queens() and len(self.queens) == 8
+
+                    if is_last_row and all_8_queens_valid:
+                        self.export_board()
+                    
+                    generate(row+1)
+                    self.remove_queen(row, i)
+            
+            # return is_solution
+        generate()
 
     def export_board(self):
-        pass
+        export_path = Path(f'./boards/board_{datetime.now().strftime(r"%Y%m%d_%H%M%S%f")}.txt')
+        Path.mkdir(export_path.parent, exist_ok=True, parents=True)
+
+        with open(export_path, "w") as file:
+            for row in self.board:
+                for value in row:
+                    if value['id'] == "queen":
+                        file.write("Q\t")
+
+                    elif value['id'] == "killzone":
+                        file.write(".\t")
+
+                    else:
+                        file.write("!\t")
+
+                file.write("\n")
 
     def file_to_board(self, file: Path):
         pass
