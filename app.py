@@ -56,16 +56,25 @@ class App():
         start_window.title('Start')
         start_window.geometry("1080x720+120+50")
         start_window.resizable(0,0)
+        bgImage = PhotoImage(file="assets/bgImage.png")
+        bgLabel = Label(start_window, image = bgImage)
+        bgLabel.image = bgImage
+        bgLabel.pack()
 
         def startGame():
             start_window.destroy()
             root.deiconify()
 
-        startButton = Button(start_window, border = 0, width = 23, text="Start Game", bg = "#FF89DB", cursor = 'hand2', fg='#FFFFFF', command=startGame, font = ('Blinker', 18))
-        startButton.place(x=390, y=590)
+        startLabel = Label(start_window, border = 0, bg = "#000000", text='Eight Queens Puzzle', fg='#FFFFFF', font = ('Henny Penny', 45))
+        startLabel.place(x=248, y=288)
+        startButton = Button(start_window, border = 0, width = 9, height = 0, text="Start Game", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=startGame, font = ('Montserrat', 18))
+        startButton.place(x=457, y=415)
 
+        start_window.protocol("WM_DELETE_WINDOW", root.destroy)
 
 if __name__ == '__main__':
     root = Tk()
+    bgImage = PhotoImage(file="assets/bgImage.png")
+    Label(root, image = bgImage).pack()
     app = App(root)
     root.mainloop()
