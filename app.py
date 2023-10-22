@@ -20,18 +20,25 @@ class App():
 
     def on_tile_click(self, frame: Frame, row: int, col: int):
         # TODO: Implement place queen and remove queen logic
-        self.eight_queens.place_queen((row, col))
-        # self.render_board(frame)
-        print(self.eight_queens.board)
+        is_killzone_or_empty = self.eight_queens.board[row][col]['id'] is None or self.eight_queens.board[row][col]['id'] == 'killzone'
+
+        if is_killzone_or_empty:
+            self.eight_queens.place_queen((row, col))
+        else:
+            self.eight_queens.remove_queen((row,col))
+
         self.render_board(frame)
 
     def render_board(self, frame: Frame):
         board = self.eight_queens.board
-        # TODO: replace with board from algorithm
-        # buttons = self.eight_queens.board()
 
+        def get_tile_image(asset: Path | None) -> PhotoImage:
+            if asset:
+                return PhotoImage(file=asset)
+            else:
+                return PhotoImage(asset)
+        
         bg = None
-        pv = None
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if (row % 2 == 0 and col % 2 == 0) or (row % 2 != 0 and col % 2 != 0):
@@ -39,10 +46,7 @@ class App():
                 else:
                     bg = "#EBECD0"
 
-                if board[row][col]['asset']:
-                    pv = PhotoImage(file=board[row][col]['asset'])
-                else: 
-                    pv = PhotoImage(None)
+                pv = get_tile_image(board[row][col]['asset'])
 
                 button = Button(frame, border=0, image=pv, width=80, height=80, bg = bg, command=lambda frm=frame, r=row, c=col: self.on_tile_click(frm, r, c))
 
