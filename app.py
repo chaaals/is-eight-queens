@@ -5,6 +5,8 @@ from algorithm.eight_queens import EightQueens
 
 class App():
     def __init__(self, root: Tk):
+        self.eight_queens = EightQueens()
+
         root.title('Eight Queens Puzzle')
 
         self.start_window(root)
@@ -15,21 +17,21 @@ class App():
 
         root.protocol("WM_DELETE_WINDOW", root.destroy)
 
-        self.eight_queens = EightQueens()
 
-    def on_tile_click(self, row: int, col: int):
+    def on_tile_click(self, frame: Frame, row: int, col: int):
         # TODO: Implement place queen and remove queen logic
-        print(row, col)
+        self.eight_queens.place_queen((row, col))
+        # self.render_board(frame)
+        print(self.eight_queens.board)
+        self.render_board(frame)
 
     def render_board(self, frame: Frame):
-        board = [[None for _ in range(8)] for _ in range(8)]
+        board = self.eight_queens.board
         # TODO: replace with board from algorithm
         # buttons = self.eight_queens.board()
 
-        # TODO: remove, should be based on asset propert from board
-        test_asset = Path.cwd() / 'assets' / 'black_queen.png'
-
         bg = None
+        pv = None
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if (row % 2 == 0 and col % 2 == 0) or (row % 2 != 0 and col % 2 != 0):
@@ -37,9 +39,12 @@ class App():
                 else:
                     bg = "#EBECD0"
 
-                pv = PhotoImage(file=test_asset)
+                if board[row][col]['asset']:
+                    pv = PhotoImage(file=board[row][col]['asset'])
+                else: 
+                    pv = PhotoImage(None)
 
-                button = Button(frame, border=0, image=pv, width=80, height=80, bg = bg, command=lambda r=row, c=col: self.on_tile_click(r, c))
+                button = Button(frame, border=0, image=pv, width=80, height=80, bg = bg, command=lambda frm=frame, r=row, c=col: self.on_tile_click(frm, r, c))
 
                 button.image = pv
                 button.grid(row=row, column=col)

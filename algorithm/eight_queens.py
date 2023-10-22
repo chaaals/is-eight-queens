@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from utils.get_asset import get_asset
+
 class EightQueens():
     'description'
 
@@ -9,9 +11,9 @@ class EightQueens():
         self._board = [[{}]]
         self._generate_board()
 
-        self._valid_queen_asset = Path("path/to/valid/queen/asset")
-        self._invalid_queen_asset = Path("path/to/invalid/queen/asset")
-        self._killzone_asset = Path("path/to/killzone/asset")
+        self._valid_queen_asset = get_asset('white_queen.png')
+        self._invalid_queen_asset = get_asset('invalid_queen.png')
+        self._killzone_asset = get_asset('kill_zone.png')
     
     @property
     def size(self) -> int:
