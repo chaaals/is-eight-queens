@@ -15,7 +15,7 @@ class EightQueens():
     
     @property
     def size(self) -> int:
-        'return generated/updated board'
+        'return size of the row and column of the board'
         return self._size
 
     @property
@@ -25,6 +25,7 @@ class EightQueens():
 
     @property
     def queens(self) -> list[tuple[int,int]]:
+        'returns a list of the positions (x,y) of all queens present in the board'
         return self._queen_positions
 
     def reset_board(self):
