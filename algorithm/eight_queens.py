@@ -60,51 +60,56 @@ class EightQueens():
             helper subfunction to add a killzone based on position given
             also checks if tile is empty beforehand to avoid replacing a queen's id with a killzone from other queens
             '''
+            self._board[row][column]["value"] += 1
+
             is_tile_empty = self._board[row][column]["id"] != "queen"
             if is_tile_empty:
                 self._board[row][column]["id"] = "killzone"
                 self._board[row][column]["asset"] = self._killzone_asset
 
 
-        # row and column killzone
+        # row killzone
         for i in range(self.size):
-            self._board[row][i]["value"] += 1
+            queen_killzone = (row, i)
+            placed_queen = (row, column)
 
-            # rows
-            placed_queen = column
-            if i != placed_queen:
+            if queen_killzone != placed_queen:
                 add_killzone(row, i)
 
             # columns
-            placed_queen = row
-            if i != placed_queen:
+            # if (i, column) != placed_queen:
+            #     self._board[row][i]["value"] += 1
+            #     add_killzone(i, column)
+
+        # column killzone
+        for i in range(self.size):
+            queen_killzone = (i, column)
+            placed_queen = (row, column)
+
+            if queen_killzone != placed_queen:
                 add_killzone(i, column)
         
         # quadrant 1 (upper right)
         i=1
         while row-i>=0 and column+i<self.size:
-            self._board[row-i][column+i]["value"] += 1
             add_killzone(row-i, column+i)
             i += 1
 
         # quadrant 2 (upper left)
         i=1
         while row-i>=0 and column-i>=0:
-            self._board[row-i][column-i]["value"] += 1
             add_killzone(row-i, column-i)
             i += 1
 
         # quadrant 3 (bottom right)
         i=1
         while row+i<self.size and column-i>=0:
-            self._board[row+i][column-i]["value"] += 1
             add_killzone(row+i, column-i)
             i += 1
 
         # quadrant 4 (bottom left)
         i=1
         while row+i<self.size and column+i<self.size:
-            self._board[row+i][column+i]["value"] += 1
             add_killzone(row+i, column+i)
             i += 1
 
@@ -141,50 +146,49 @@ class EightQueens():
             helper subfunction to remove a killzone based on position given
             also to avoid replacing asset of an invalid queen when removing a killzone
             '''
+            self._board[row][column]["value"] -= 1
+
             is_removed_killzone_empty = self._board[row][column]["value"] == 0 and self._board[row][column]["asset"] == self._killzone_asset
             if is_removed_killzone_empty:
                 self._board[row][column]["id"] = None
                 self._board[row][column]["asset"] = None
 
-        # row and column killzone
         for i in range(self.size):
-            self._board[row][i]["value"] -= 1
+            queen_killzone = (row, i)
+            placed_queen = (row, column)
 
-            # rows
-            removed_queen = column
-            if i != removed_queen:
+            if queen_killzone != placed_queen:
                 remove_killzone(row, i)
 
-            # columns
-            removed_queen = row
-            if i != removed_queen:
+        # column killzone
+        for i in range(self.size):
+            queen_killzone = (i, column)
+            placed_queen = (row, column)
+
+            if queen_killzone != placed_queen:
                 remove_killzone(i, column)
         
         # quadrant 1 (upper right)
         i=1
         while row-i>=0 and column+i<self.size:
-            self._board[row-i][column+i]["value"] -= 1
             remove_killzone(row-i, column+i)
             i += 1
 
         # quadrant 2 (upper left)
         i=1
         while row-i>=0 and column-i>=0:
-            self._board[row-i][column-i]["value"] -= 1
             remove_killzone(row-i, column-i)
             i += 1
 
         # quadrant 3 (bottom right)
         i=1
         while row+i<self.size and column-i>=0:
-            self._board[row+i][column-i]["value"] -= 1
             remove_killzone(row+i, column-i)
             i += 1
 
         # quadrant 4 (bottom left)
         i=1
         while row+i<self.size and column+i<self.size:
-            self._board[row+i][column+i]["value"] -= 1
             remove_killzone(row+i, column+i)
             i += 1
 
