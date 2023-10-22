@@ -1,11 +1,15 @@
 from pathlib import Path
 from tkinter import *
-from tkinter import ttk
+
 from algorithm.eight_queens import EightQueens
+from utils.get_tile_image import get_tile_image
+
 
 class App():
     def __init__(self, root: Tk):
         self.eight_queens = EightQueens()
+        self.board = self.eight_queens.board
+        self.tiles = [[ Button for _ in range(8)] for _ in range(8)]
 
         root.title('Eight Queens Puzzle')
 
@@ -27,31 +31,31 @@ class App():
         else:
             self.eight_queens.remove_queen((row,col))
 
-        self.render_board(frame)
+        self.update_board()
+
+    def update_board(self):
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                tile_image = get_tile_image(self.board[row][col]['asset'])
+                self.tiles[row][col].config(image=tile_image)
+                self.tiles[row][col].image = tile_image
 
     def render_board(self, frame: Frame):
-        board = self.eight_queens.board
-
-        def get_tile_image(asset: Path | None) -> PhotoImage:
-            if asset:
-                return PhotoImage(file=asset)
-            else:
-                return PhotoImage(asset)
-        
         bg = None
-        for row in range(len(board)):
-            for col in range(len(board[row])):
+        tile_image = PhotoImage(None)
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
                 if (row % 2 == 0 and col % 2 == 0) or (row % 2 != 0 and col % 2 != 0):
                     bg = "#779556"
                 else:
                     bg = "#EBECD0"
 
-                pv = get_tile_image(board[row][col]['asset'])
+                button = Button(frame, border=0, image=tile_image, width=80, height=80, bg = bg, command=lambda frm=frame, r=row, c=col: self.on_tile_click(frm, r, c))
 
-                button = Button(frame, border=0, image=pv, width=80, height=80, bg = bg, command=lambda frm=frame, r=row, c=col: self.on_tile_click(frm, r, c))
-
-                button.image = pv
+                button.image = tile_image
                 button.grid(row=row, column=col)
+
+                self.tiles[row][col] = button
 
     def play(self, root: Tk):
         play_frame = Frame(root)
