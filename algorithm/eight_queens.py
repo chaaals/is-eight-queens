@@ -32,7 +32,7 @@ class EightQueens():
         'generates a new board with blank tiles'
         self._generate_board()
 
-    def place_queen(self, position: tuple):
+    def place_queen(self, row: int, column: int):
         """
         Places a queen and their respective killzones on the board.
         Killzones can overlap and queens can be placed on killzones
@@ -42,14 +42,14 @@ class EightQueens():
         Raises:
             ValueError: If the specified position is already occupied by another queen.
         """
-        self._validate_position(position)
-        row, column = position
+        self._validate_position(row, column)
 
         occupied = self._board[row][column]["id"] == "queen"
         if occupied:
             ALREADY_OCCUPIED = f"This tile ({row},{column}) already has a queen. It has {self._board[row][column]['id']} as the id\nDid you mean to use 'remove_queen()' instead?"
             raise ValueError(ALREADY_OCCUPIED)
         
+        position = (row, column)
         self._queen_positions.append(position)
         self._board[row][column]["id"] = "queen"
 
@@ -113,7 +113,7 @@ class EightQueens():
 
         self._validate_queens()
 
-    def remove_queen(self, position: tuple):
+    def remove_queen(self, row: int, column: int):
         """
         Removes a queen and their respective killzones on the board.
         Removed killzones that overlapped with other killzones won't remove those other killzones
@@ -123,16 +123,15 @@ class EightQueens():
         Raises:
             ValueError: If the specified position is not occupied by a queen.
         """
-        self._validate_position(position)
-        row, column = position
+        self._validate_position(row, column)
         
         occupied = self._board[row][column]["id"] == "queen"
         if not occupied:
             EMPTY_TILE = f"This tile ({row},{column}) does not have a queen. It has {self._board[row][column]['id']} as the id\nDid you mean to use 'place_queen()' instead?"
             raise ValueError(EMPTY_TILE)
         
+        position = (row, column)
         self._queen_positions.pop(self._queen_positions.index(position))
-
         self._board[row][column]["id"] = None
 
         removed_queen_was_killzone = self._board[row][column]["value"] > 0
@@ -217,15 +216,13 @@ class EightQueens():
             } for _ in range(8)
         ] for _ in range(8)]
     
-    def _validate_position(self, position: tuple[int,int]):
+    def _validate_position(self, row: int, column: int):
         'interrupt process if not a valid position'
-        tuple_of_2_ints = (
-            isinstance(position, tuple) and
-            len(position) == 2 and
-            all([isinstance(value, int) for value in position])
-        )
-        if not tuple_of_2_ints:
-            raise ValueError("Position should be a tuple of 2 ints (position in x and y)")
+        position = (row, column)
+
+        all_int = all([isinstance(value, int) for value in position])
+        if not all_int:
+            raise ValueError("Position should be 2 ints (position in x and y)")
 
         out_of_bounds = all(value > self.size for value in position)
         if out_of_bounds:
