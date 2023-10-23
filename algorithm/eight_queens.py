@@ -250,3 +250,8 @@ class EightQueens():
                 all_valid = False
         
         return all_valid
+    
+    def read_solution(file):
+        # READ file
+        # 
+        return 0
