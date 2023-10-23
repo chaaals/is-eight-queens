@@ -8,6 +8,7 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
+        self.imported_boards = []
         self._generate_board()
 
         self._valid_queen_asset = Path("path/to/valid/queen/asset")
@@ -246,8 +247,40 @@ class EightQueens():
 
                 file.write("\n")
 
-    def file_to_board(self, file: Path):
-        pass
+    def file_to_board(self, import_dir: Path = Path('./boards').resolve()):
+
+        # Get a list of text files in the specified folder
+        board_files = import_dir.glob("*.txt")
+
+        # Iterate through the files and read their contents
+        for file_path in board_files:
+            with open(file_path, "r") as file:
+                board_data = []
+                for line in file:
+                    # Split each line by tabs to get individual elements
+                    elements = line.strip().split("\t")
+                    board_row = []
+                    for element in elements:
+                        if element == "Q":
+                            board_row.append({
+                                "id": "queen",
+                                "value": 0,
+                                "asset": None
+                            })
+                        elif element == ".":
+                            board_row.append({
+                                "id": "killzone",
+                                "value": 0,
+                                "asset": None
+                            })
+                        else:
+                            raise ValueError(f"Invalid element in the file: {element}")
+
+                    board_data.append(board_row)
+
+                # Append the imported board data to the list of imported boards
+                self.imported_boards.append(board_data)
+
 
     def _generate_board(self):
         'description'
