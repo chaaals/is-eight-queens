@@ -264,14 +264,15 @@ class EightQueens():
                         if element == "Q":
                             board_row.append({
                                 "id": "queen",
-                                "value": 0,
-                                "asset": None
+                                # "value": 0,      ## removed value as mentioned by Charles
+                                "asset": str(self._valid_queen_asset)
                             })
                         elif element == ".":
                             board_row.append({
                                 "id": "killzone",
-                                "value": 0,
-                                "asset": None
+                                # "value": 0,     ## removed value as mentioned by Charles
+                                "asset": str(self._killzone_asset)
+
                             })
                         else:
                             raise ValueError(f"Invalid element in the file: {element}")
