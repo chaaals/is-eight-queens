@@ -200,8 +200,12 @@ class EightQueens():
         self._killzone_asset = Path(killzone).resolve()
 
     def generate_answers(self):
+        '''
+        generates solutions to n queens problem using recursive backtracing
+        
+        calls self.export_board() whenever a solution is found
+        '''
         def generate(row: int = 0) -> bool:
-
             # base case
             if row >= self.size:
                 return
@@ -213,7 +217,6 @@ class EightQueens():
                 tile = board_row[i]
 
                 if tile['value'] == 0:
-                    print(f"place_queen({row}, {i})")
                     self.place_queen(row, i)
                     all_8_queens_valid = self._validate_queens() and len(self.queens) == 8
 
@@ -223,7 +226,6 @@ class EightQueens():
                     generate(row+1)
                     self.remove_queen(row, i)
             
-            # return is_solution
         generate()
 
     def export_board(self):
