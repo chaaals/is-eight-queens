@@ -13,9 +13,11 @@ class EightQueens():
         self._imported_boards = []
         self._generate_board()
 
-        self._valid_queen_asset = get_asset('white_queen.png')
-        self._invalid_queen_asset = get_asset('invalid_queen.png')
-        self._killzone_asset = get_asset('kill_zone.png')
+        self._valid_queen_asset = None
+        self._invalid_queen_asset = None
+        self._killzone_asset = None
+
+        self.set_assets(valid_queen='./assets/white_queen.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
     
     @property
     def size(self) -> int:
@@ -39,6 +41,7 @@ class EightQueens():
     def reset_board(self):
         'generates a new board with blank tiles'
         self._generate_board()
+        self._queen_positions = []
 
     def place_queen(self, row: int, column: int):
         """
@@ -119,7 +122,15 @@ class EightQueens():
             add_killzone(row+i, column+i)
             i += 1
 
-        self._validate_queens()
+        all_valid_queens = self._validate_queens()
+
+        if all_valid_queens and len(self.queens) == 8:
+            self.set_assets(valid_queen='./assets/all_valid.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
+
+            for position in self.queens:
+                queen = self._board[position[0]][position[1]]
+                queen['asset'] = self._valid_queen_asset
+            
 
     def remove_queen(self, row: int, column: int):
         """
@@ -131,6 +142,13 @@ class EightQueens():
         Raises:
             ValueError: If the specified position is not occupied by a queen.
         """
+        if(len(self.queens) == 8):
+            self.set_assets(valid_queen='./assets/white_queen.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
+
+            for position in self.queens:
+                queen = self._board[position[0]][position[1]]
+                queen['asset'] = self._valid_queen_asset
+
         self._validate_position(row, column)
         
         occupied = self._board[row][column]["id"] == "queen"
@@ -139,6 +157,7 @@ class EightQueens():
             raise ValueError(EMPTY_TILE)
         
         position = (row, column)
+
         self._queen_positions.pop(self._queen_positions.index(position))
         self._board[row][column]["id"] = None
         self._board[row][column]["asset"] = None
@@ -282,7 +301,12 @@ class EightQueens():
 
                             })
                         else:
-                            raise ValueError(f"Invalid element in the file: {element}")
+                            board_row.append({
+                                "id": "",
+                                # "value": 0,     ## removed value as mentioned by Charles
+                                "asset": None
+
+                            })
 
                     board_data.append(board_row)
 
