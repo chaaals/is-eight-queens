@@ -8,7 +8,7 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
-        self.imported_boards = []
+        self._imported_boards = []
         self._generate_board()
 
         self._valid_queen_asset = Path("path/to/valid/queen/asset")
@@ -29,6 +29,10 @@ class EightQueens():
     def queens(self) -> list[tuple[int,int]]:
         'returns a list of the positions (x,y) of all queens present in the board'
         return self._queen_positions
+    
+    @property
+    def imported_boards(self):
+        return self._imported_boards
 
     def reset_board(self):
         'generates a new board with blank tiles'
