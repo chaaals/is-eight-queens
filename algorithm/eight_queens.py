@@ -8,6 +8,7 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
+        self._imported_boards = []
         self._generate_board()
 
         self._valid_queen_asset = Path("path/to/valid/queen/asset")
@@ -28,6 +29,10 @@ class EightQueens():
     def queens(self) -> list[tuple[int,int]]:
         'returns a list of the positions (x,y) of all queens present in the board'
         return self._queen_positions
+    
+    @property
+    def imported_boards(self):
+        return self._imported_boards
 
     def reset_board(self):
         'generates a new board with blank tiles'
@@ -246,8 +251,41 @@ class EightQueens():
 
                 file.write("\n")
 
-    def file_to_board(self, file: Path):
-        pass
+    def file_to_board(self, import_dir: Path = Path('./boards').resolve()):
+
+        # Get a list of text files in the specified folder
+        board_files = import_dir.glob("*.txt")
+
+        # Iterate through the files and read their contents
+        for file_path in board_files:
+            with open(file_path, "r") as file:
+                board_data = []
+                for line in file:
+                    # Split each line by tabs to get individual elements
+                    elements = line.strip().split("\t")
+                    board_row = []
+                    for element in elements:
+                        if element == "Q":
+                            board_row.append({
+                                "id": "queen",
+                                # "value": 0,      ## removed value as mentioned by Charles
+                                "asset": str(self._valid_queen_asset)
+                            })
+                        elif element == ".":
+                            board_row.append({
+                                "id": "killzone",
+                                # "value": 0,     ## removed value as mentioned by Charles
+                                "asset": str(self._killzone_asset)
+
+                            })
+                        else:
+                            raise ValueError(f"Invalid element in the file: {element}")
+
+                    board_data.append(board_row)
+
+                # Append the imported board data to the list of imported boards
+                self.imported_boards.append(board_data)
+
 
     def _generate_board(self):
         'description'
