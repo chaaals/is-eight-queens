@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 
+from typing import Literal
 from utils.get_asset import get_asset
 
 class EightQueens():
@@ -10,7 +11,10 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
-        self._imported_boards = []
+        self._imported_boards = {
+            'solutions': [],
+            'history': []
+        }
         self._generate_board()
 
         self._valid_queen_asset = None
@@ -42,7 +46,6 @@ class EightQueens():
         'generates a new board with blank tiles'
         self._generate_board()
         self._queen_positions = []
-        self._imported_boards = []
 
     def place_queen(self, row: int, column: int):
         """
@@ -249,15 +252,15 @@ class EightQueens():
                     all_8_queens_valid = self._validate_queens() and len(self.queens) == 8
 
                     if is_last_row and all_8_queens_valid:
-                        self.export_board()
+                        self.export_board(export_dir='solutions')
                     
                     generate(row+1)
                     self.remove_queen(row, i)
             
         generate()
 
-    def export_board(self):
-        export_path = Path(f'./boards/board_{datetime.now().strftime(r"%Y%m%d_%H%M%S%f")}.txt')
+    def export_board(self, export_dir: str) -> Path:
+        export_path = Path(f'./{export_dir}/board_{datetime.now().strftime(r"%Y%m%d_%H%M%S%f")}.txt')
         Path.mkdir(export_path.parent, exist_ok=True, parents=True)
 
         with open(export_path, "w") as file:
@@ -274,10 +277,14 @@ class EightQueens():
 
                 file.write("\n")
 
-    def file_to_board(self, import_dir: Path = Path('./boards').resolve()):
+        return export_path
+
+    def file_to_board(self, mode: Literal['solutions', 'history'] = None, file: Path = None):
 
         # Get a list of text files in the specified folder
-        board_files = import_dir.glob("*.txt")
+        _dir = 'boards' if mode == 'history' or mode is None else 'solutions'
+        import_dir = Path(f'./{_dir}').resolve()
+        board_files = [file] if file is not None else import_dir.glob("*.txt")
 
         # Iterate through the files and read their contents
         for file_path in board_files:
@@ -312,7 +319,7 @@ class EightQueens():
                     board_data.append(board_row)
 
                 # Append the imported board data to the list of imported boards
-                self.imported_boards.append(board_data)
+                self.imported_boards[mode].append(board_data)
 
 
     def _generate_board(self):

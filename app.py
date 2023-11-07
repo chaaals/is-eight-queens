@@ -10,7 +10,11 @@ class App():
         self.root = root
         self.eight_queens = EightQueens()
         self.board = self.eight_queens.board
-        self.solution_board = [[ None for _ in range(8)] for _ in range(8)]
+
+        self.board_viewer_boards = {
+            'solutions' : [[ None for _ in range(8)] for _ in range(8)],
+            'history' : [[ None for _ in range(8)] for _ in range(8)]
+        }
         self.tiles = [[ Button for _ in range(8)] for _ in range(8)]
 
         self.bgImage = PhotoImage(file="assets/bgImage.png")
@@ -24,16 +28,23 @@ class App():
 
         def on_history_click():
             self.clear_screen(frame=self.root, skip=[self.bgLabel])
-            self.history_viewer_frame(self.root)
+            self.board_viewer_frame(self.root, mode='history')
+
+        def on_solutions_click():
+            self.clear_screen(frame=self.root, skip=[self.bgLabel])
+            self.board_viewer_frame(self.root, mode='solutions')
 
         start_label = Label(root, border = 0, bg = "#000000", text='Eight Queens Puzzle', fg='#FFFFFF', font = ('Henny Penny', 45))
         start_label.place(x=248, y=288)
 
-        history_button = Button(root, border = 0, width = 9, height = 0, text="Start Game", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_start_click, font = ('Montserrat', 18))
-        history_button.place(x=357, y=415)
+        start_button = Button(root, border = 0, width = 9, height = 0, text="Start Game", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_start_click, font = ('Montserrat', 18))
+        start_button.place(x=357, y=415)
 
         history_button = Button(root, border = 0, width = 9, height = 0, text="History", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_history_click, font = ('Montserrat', 18))
         history_button.place(x=557, y=415)
+
+        solutions_button = Button(root, border = 0, width = 9, height = 0, text="Solutions", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_solutions_click, font = ('Montserrat', 18))
+        solutions_button.place(x=457, y=500)
 
     def board_frame(self, root: Tk, board: list[list[dict]], coord: tuple = (220, 36), mode: Literal['active', 'disabled'] = 'active', **props):
         play_frame = Frame(root)
@@ -42,7 +53,8 @@ class App():
         play_frame.place(x=x, y=y)
 
         def on_save_board():
-            self.eight_queens.export_board()
+            file_path = self.eight_queens.export_board(export_dir='boards')
+            self.eight_queens.file_to_board(file=file_path, mode='history')
             self.on_reset_board()
 
         def on_back():
@@ -62,24 +74,28 @@ class App():
         backButton = Button(root, border = 0, width = 9, height = 2, text="Back", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_back, font = ('Montserrat', 18))
         backButton.place(x=910, y=188)
 
-    def history_viewer_frame(self, root: Tk, **props):
+    def board_viewer_frame(self, root: Tk, mode: Literal['solutions', 'history'], **props):
         board_frame = Frame(root)
         board_frame.place(x=365, y=36)
 
-        self.eight_queens.file_to_board()
+        if mode == 'solutions' and not Path('./solutions').exists() or not any(Path('./solutions').iterdir()):
+            self.eight_queens.generate_answers()
+
+        if len(self.eight_queens.imported_boards[mode]) == 0:
+            self.eight_queens.file_to_board(mode=mode)
 
         def view_solution(event):
             index, = nav_bar.curselection()
-            self.solution_board = self.eight_queens.imported_boards[index]
-            self.update_board(board=self.solution_board)
+            self.board_viewer_boards[mode] = self.eight_queens.imported_boards[mode][index]
+            self.update_board(board=self.board_viewer_boards[mode])
 
         def on_back():
-            self.solution_board = [[ None for _ in range(8)] for _ in range(8)]
+            self.board_viewer_boards[mode] = [[ None for _ in range(8)] for _ in range(8)]
             self.clear_screen(root, skip=[self.bgLabel])
             self.start_frame(root=self.root)
             
         width, height = 23, root.winfo_height()
-        answers = tuple([f"Board {i + 1}" for i in range(len(self.eight_queens.imported_boards))])
+        answers = tuple([f"Board {i + 1}" for i in range(len(self.eight_queens.imported_boards[mode]))])
         
         lb_var = Variable(value=answers)
 
@@ -99,7 +115,7 @@ class App():
         nav_bar.config(yscrollcommand=scroll_bar.set)
         nav_bar.bind('<<ListboxSelect>>', view_solution)
 
-        self.render_board(frame=board_frame, board=self.solution_board, mode='disabled')
+        self.render_board(frame=board_frame, board=self.board_viewer_boards[mode], mode='disabled')
 
     # Global functions
     def on_reset_board(self):
