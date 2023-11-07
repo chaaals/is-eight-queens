@@ -1,6 +1,9 @@
 from pathlib import Path
 from datetime import datetime
 
+from typing import Literal
+from utils.get_asset import get_asset
+
 class EightQueens():
     'description'
 
@@ -8,12 +11,17 @@ class EightQueens():
         self._size = size
         self._queen_positions = []
         self._board = [[{}]]
-        self._imported_boards = []
+        self._imported_boards = {
+            'solutions': [],
+            'history': []
+        }
         self._generate_board()
 
-        self._valid_queen_asset = Path("path/to/valid/queen/asset")
-        self._invalid_queen_asset = Path("path/to/invalid/queen/asset")
-        self._killzone_asset = Path("path/to/killzone/asset")
+        self._valid_queen_asset = None
+        self._invalid_queen_asset = None
+        self._killzone_asset = None
+
+        self.set_assets(valid_queen='./assets/white_queen.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
     
     @property
     def size(self) -> int:
@@ -37,6 +45,7 @@ class EightQueens():
     def reset_board(self):
         'generates a new board with blank tiles'
         self._generate_board()
+        self._queen_positions = []
 
     def place_queen(self, row: int, column: int):
         """
@@ -117,7 +126,15 @@ class EightQueens():
             add_killzone(row+i, column+i)
             i += 1
 
-        self._validate_queens()
+        all_valid_queens = self._validate_queens()
+
+        if all_valid_queens and len(self.queens) == 8:
+            self.set_assets(valid_queen='./assets/all_valid.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
+
+            for position in self.queens:
+                queen = self._board[position[0]][position[1]]
+                queen['asset'] = self._valid_queen_asset
+            
 
     def remove_queen(self, row: int, column: int):
         """
@@ -129,6 +146,13 @@ class EightQueens():
         Raises:
             ValueError: If the specified position is not occupied by a queen.
         """
+        if(len(self.queens) == 8):
+            self.set_assets(valid_queen='./assets/white_queen.png', invalid_queen='./assets/invalid_queen.png', killzone='./assets/kill_zone.png')
+
+            for position in self.queens:
+                queen = self._board[position[0]][position[1]]
+                queen['asset'] = self._valid_queen_asset
+
         self._validate_position(row, column)
         
         occupied = self._board[row][column]["id"] == "queen"
@@ -137,8 +161,10 @@ class EightQueens():
             raise ValueError(EMPTY_TILE)
         
         position = (row, column)
+
         self._queen_positions.pop(self._queen_positions.index(position))
         self._board[row][column]["id"] = None
+        self._board[row][column]["asset"] = None
 
         removed_queen_was_killzone = self._board[row][column]["value"] > 0
         if removed_queen_was_killzone:
@@ -226,15 +252,15 @@ class EightQueens():
                     all_8_queens_valid = self._validate_queens() and len(self.queens) == 8
 
                     if is_last_row and all_8_queens_valid:
-                        self.export_board()
+                        self.export_board(export_dir='solutions')
                     
                     generate(row+1)
                     self.remove_queen(row, i)
             
         generate()
 
-    def export_board(self):
-        export_path = Path(f'./boards/board_{datetime.now().strftime(r"%Y%m%d_%H%M%S%f")}.txt')
+    def export_board(self, export_dir: str) -> Path:
+        export_path = Path(f'./{export_dir}/board_{datetime.now().strftime(r"%Y%m%d_%H%M%S%f")}.txt')
         Path.mkdir(export_path.parent, exist_ok=True, parents=True)
 
         with open(export_path, "w") as file:
@@ -251,10 +277,14 @@ class EightQueens():
 
                 file.write("\n")
 
-    def file_to_board(self, import_dir: Path = Path('./boards').resolve()):
+        return export_path
+
+    def file_to_board(self, mode: Literal['solutions', 'history'] = None, file: Path = None):
 
         # Get a list of text files in the specified folder
-        board_files = import_dir.glob("*.txt")
+        _dir = 'boards' if mode == 'history' or mode is None else 'solutions'
+        import_dir = Path(f'./{_dir}').resolve()
+        board_files = [file] if file is not None else import_dir.glob("*.txt")
 
         # Iterate through the files and read their contents
         for file_path in board_files:
@@ -279,12 +309,17 @@ class EightQueens():
 
                             })
                         else:
-                            raise ValueError(f"Invalid element in the file: {element}")
+                            board_row.append({
+                                "id": "",
+                                # "value": 0,     ## removed value as mentioned by Charles
+                                "asset": None
+
+                            })
 
                     board_data.append(board_row)
 
                 # Append the imported board data to the list of imported boards
-                self.imported_boards.append(board_data)
+                self.imported_boards[mode].append(board_data)
 
 
     def _generate_board(self):
