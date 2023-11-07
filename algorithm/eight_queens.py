@@ -42,6 +42,7 @@ class EightQueens():
         'generates a new board with blank tiles'
         self._generate_board()
         self._queen_positions = []
+        self._imported_boards = []
 
     def place_queen(self, row: int, column: int):
         """

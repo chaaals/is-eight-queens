@@ -13,9 +13,18 @@ class App():
         self.solution_board = [[ None for _ in range(8)] for _ in range(8)]
         self.tiles = [[ Button for _ in range(8)] for _ in range(8)]
 
+        self.bgImage = PhotoImage(file="assets/bgImage.png")
+        self.bgLabel = Label(root, image=self.bgImage)
+
     # Frames
     def start_frame(self, root: Tk, **props):
-        on_start_click, on_history_click = props['on_start_click'], props['on_history_click']
+        def on_start_click():
+            self.clear_screen(frame=self.root, skip=[self.bgLabel])
+            self.board_frame(root=self.root, board=self.board, mode='active')
+
+        def on_history_click():
+            self.clear_screen(frame=self.root, skip=[self.bgLabel])
+            self.history_viewer_frame(self.root)
 
         start_label = Label(root, border = 0, bg = "#000000", text='Eight Queens Puzzle', fg='#FFFFFF', font = ('Henny Penny', 45))
         start_label.place(x=248, y=288)
@@ -32,23 +41,26 @@ class App():
         x, y = coord
         play_frame.place(x=x, y=y)
 
-        def on_reset_board():
-            self.eight_queens.reset_board()
-            self.board = self.eight_queens.board
-            
-            self.update_board(board=self.board)
-
         def on_save_board():
             self.eight_queens.export_board()
-            on_reset_board()
+            self.on_reset_board()
+
+        def on_back():
+            self.eight_queens.reset_board()
+            self.on_reset_board()
+            self.clear_screen(root, skip=[self.bgLabel])
+            self.start_frame(root=self.root)
             
         self.render_board(play_frame, board=board, mode=mode)
 
         saveButton = Button(root, border = 0, width = 9, height = 2, text="Save", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_save_board, font = ('Montserrat', 18))
-        saveButton.place(x=910, y=112)
+        saveButton.place(x=910, y=36)
 
-        resetButton = Button(root, border = 0, width = 9, height = 2, text="Reset", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_reset_board, font = ('Montserrat', 18))
-        resetButton.place(x=910, y=36)
+        resetButton = Button(root, border = 0, width = 9, height = 2, text="Reset", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=self.on_reset_board, font = ('Montserrat', 18))
+        resetButton.place(x=910, y=112)
+
+        backButton = Button(root, border = 0, width = 9, height = 2, text="Back", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_back, font = ('Montserrat', 18))
+        backButton.place(x=910, y=188)
 
     def history_viewer_frame(self, root: Tk, **props):
         board_frame = Frame(root)
@@ -61,6 +73,11 @@ class App():
             self.solution_board = self.eight_queens.imported_boards[index]
             self.update_board(board=self.solution_board)
 
+        def on_back():
+            self.solution_board = [[ None for _ in range(8)] for _ in range(8)]
+            self.clear_screen(root, skip=[self.bgLabel])
+            self.start_frame(root=self.root)
+            
         width, height = 23, root.winfo_height()
         answers = tuple([f"Board {i + 1}" for i in range(len(self.eight_queens.imported_boards))])
         
@@ -73,16 +90,24 @@ class App():
         nav_bar = Listbox(nav_frame, width=width, listvariable=lb_var, selectmode=SINGLE, border=0, bg="#EBECD0", font=('Montserrat', 12))
         nav_bar.pack(side=LEFT, fill=Y, expand=True)
 
+        backButton = Button(root, border = 0, width = 9, height = 2, text="Back", bg = "#000000", cursor = 'hand2', fg='#FFFFFF', command=on_back, font = ('Montserrat', 18))
+        backButton.place(x=20, y=220)
+
         scroll_bar = Scrollbar(nav_frame, command=nav_bar.yview, orient='vertical')
         scroll_bar.pack(side=RIGHT, fill=Y)
 
         nav_bar.config(yscrollcommand=scroll_bar.set)
         nav_bar.bind('<<ListboxSelect>>', view_solution)
 
-
         self.render_board(frame=board_frame, board=self.solution_board, mode='disabled')
 
     # Global functions
+    def on_reset_board(self):
+        self.eight_queens.reset_board()
+        self.board = self.eight_queens.board
+            
+        self.update_board(board=self.board)
+        
     def on_tile_click(self, row: int, col: int):
         is_killzone_or_empty = self.board[row][col]['id'] is None or self.board[row][col]['id'] == 'killzone'
 
@@ -142,20 +167,10 @@ class App():
 
         self.root.protocol("WM_DELETE_WINDOW", self.root.destroy)
 
-        bgImage = PhotoImage(file="assets/bgImage.png")
-        bgLabel = Label(root, image = bgImage)
-        bgLabel.image = bgImage
-        bgLabel.pack()
+        self.bgLabel.image = self.bgImage
+        self.bgLabel.pack()
 
-        def on_start_click():
-            self.clear_screen(frame=self.root, skip=[bgLabel])
-            self.board_frame(root=self.root, board=self.board)
-
-        def on_history_click():
-            self.clear_screen(frame=self.root, skip=[bgLabel])
-            self.history_viewer_frame(self.root)
-
-        self.start_frame(root=self.root, on_start_click=on_start_click, on_history_click=on_history_click)
+        self.start_frame(root=self.root)
 
 if __name__ == '__main__':
     root = Tk()
